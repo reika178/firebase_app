@@ -1,87 +1,97 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/semantics.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(ChatApp());
 }
 
-class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+class ChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'ChatApp',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyAuthPage(),
+      home: LoginPage(),
     );
   }
 }
 
-class MyAuthPage extends StatefulWidget {
-  @override
-  _MyAuthPageState createState() => _MyAuthPageState();
-}
-
-class _MyAuthPageState extends State<MyAuthPage> {
-  
-  String newUserEmail = "";
-  String newUserPassword = "";
-  String infoText = "";
-
+class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Container(
-          padding: EdgeInsets.all(32),
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: "メールアドレス"),
-                onChanged: (String value) {
-                  setState(() {
-                    newUserEmail = value;
-                  });
-                },
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: "パスワード（６文字以上）"),
-                obscureText: true,
-                onChanged: (String value) {
-                  setState(() {
-                    newUserPassword = value;
-                  });
-                },
-              ),
-              RaisedButton(
-                onPressed: () async {
-                  try {
-                    final FirebaseAuth auth = FirebaseAuth.instance;
-                    final AuthResult result = 
-                        await auth.createUserWithEmailAndPassword(
-                          email: newUserEmail,
-                          password: newUserPassword,
-                        );
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            RaisedButton(
+              child: Text('ログイン'),
+              onPressed: () async {
+                await Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (context) {
+                    return ChatPage();
+                  }),
+                );
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-                        final FirebaseUser user = result.user;
-                        setState(() {
-                          infoText = "登録OK: ${user.email}";
-                        });
-                  } catch (e) {
-                    setState(() {
-                      infoText = "登録NG: ${e.message}";
-                    });
-                  }
-                },
-                child: Text("ユーザー登録"),
-              ),
-              Text(infoText)
-            ],
+class ChatPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('チャット'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () async {
+              await Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) {
+                  return LoginPage();
+                }),
+              );
+            },
           ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add),
+        onPressed: () async {
+          await Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) {
+              return AddPostPage();
+            }),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class AddPostPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('チャット投稿'),
+      ),
+      body: Center(
+        child: RaisedButton(
+          child: Text('戻る'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
         ),
       ),
     );
